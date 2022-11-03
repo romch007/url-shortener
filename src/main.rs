@@ -9,6 +9,7 @@ struct AppState {
     urls: Mutex<HashMap<String, String>>,
 }
 
+const BASE_URL: &str = "http://localhost:8080/";
 const AVAILABLE_CHARS: &str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const SHORT_ID_LEN: usize = 6;
 
@@ -40,7 +41,9 @@ async fn register(req_body: String, data: web::Data<AppState>) -> impl Responder
     match urls.get(&req_body) {
         Some(value) => HttpResponse::Ok().body(value.clone()),
         None => {
+            let mut url = String::from(BASE_URL);
             let short_id = generate_short_id();
+            url.push_str(&short_id);
             urls.insert(short_id.clone(), req_body);
             HttpResponse::Ok().body(short_id)
         }
