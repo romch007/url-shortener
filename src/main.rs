@@ -16,7 +16,7 @@ const SHORT_ID_LEN: usize = 6;
 /// Generate a short ID
 fn generate_short_id() -> String {
     let mut rng = rand::thread_rng();
-    let mut result = String::new();
+    let mut result = String::with_capacity(SHORT_ID_LEN);
     for _ in 0..SHORT_ID_LEN {
         let picked_char = AVAILABLE_CHARS.chars().choose(&mut rng).unwrap();
         result.push(picked_char)
