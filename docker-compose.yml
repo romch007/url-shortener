@@ -1,0 +1,17 @@
+version: '3.8'
+
+volumes:
+  data:
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
+
+  shortener:
+    build: .
+    ports:
+      - 8080:8080
+    environment:
+      REDIS_URL: "redis://redis/"
