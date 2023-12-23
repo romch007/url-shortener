@@ -2,7 +2,7 @@ use crate::{errors, id, AppState};
 
 use axum::{
     extract::{Path, State},
-    http::{HeaderMap, HeaderValue, StatusCode},
+    http::{header, HeaderMap, HeaderValue, StatusCode},
 };
 
 use bb8_redis::redis::{cmd, AsyncCommands};
@@ -33,7 +33,7 @@ pub async fn get_link(
         let mut headers = HeaderMap::new();
         let header_value = HeaderValue::from_str(&link)?;
 
-        headers.insert("Location", header_value);
+        headers.insert(header::LOCATION, header_value);
 
         Ok((StatusCode::MOVED_PERMANENTLY, headers))
     } else {
