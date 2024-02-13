@@ -31,7 +31,7 @@ async fn create_app_state() -> AppState {
     AppState { redis: pool }
 }
 
-async fn router() -> Router<AppState> {
+fn router() -> Router<AppState> {
     Router::new()
         .route("/health", get(endpoints::health))
         .route("/:link", get(endpoints::get_link))
@@ -50,7 +50,7 @@ async fn main() {
         .init();
 
     let app_state = create_app_state().await;
-    let app = router().await.with_state(app_state);
+    let app = router().with_state(app_state);
 
     let addr = std::env::var("HOST").unwrap_or_else(|_| String::from("127.0.0.1"));
     let port = std::env::var("PORT")

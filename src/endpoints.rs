@@ -68,7 +68,7 @@ mod tests {
     async fn health() {
         let _ = dotenv();
         let app_state = create_app_state().await;
-        let app = router().await;
+        let app = router();
         let app = app.with_state(app_state);
 
         let response = app
@@ -89,7 +89,7 @@ mod tests {
     async fn get_link() {
         let _ = dotenv();
         let app_state = create_app_state().await;
-        let app = router().await;
+        let app = router();
         let app = app.with_state(app_state.clone());
 
         // Create a fake link entry
@@ -124,7 +124,7 @@ mod tests {
     async fn set_link() {
         let _ = dotenv();
         let app_state = create_app_state().await;
-        let app = router().await;
+        let app = router();
         let app = app.with_state(app_state);
 
         let response = app
