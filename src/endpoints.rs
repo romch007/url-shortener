@@ -48,7 +48,7 @@ pub async fn set_link(
     let mut conn = app_state.redis.get().await?;
     let link_id = id::generate();
 
-    conn.set(&link_id, &body).await?;
+    let _: () = conn.set(&link_id, &body).await?;
 
     Ok(link_id)
 }
