@@ -8,7 +8,7 @@ services:
       - 6379:6379
 
   shortener:
-    build: .
+    image: ghcr.io/romch007/url-shortener
     ports:
       - 8080:8080
     environment:
