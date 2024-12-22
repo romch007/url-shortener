@@ -33,6 +33,7 @@ async fn create_app_state() -> AppState {
 
 fn router() -> Router<AppState> {
     Router::new()
+        .route("/", get(endpoints::index))
         .route("/health", get(endpoints::health))
         .route("/:link", get(endpoints::get_link))
         .route("/", post(endpoints::set_link))

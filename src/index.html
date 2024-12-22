@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>URL shortener</title>
+  </head>
+  <body>
+    <h2>URL shortener</h2>
+
+    <form action="" id="shorten-form">
+      <input type="text" name="url" />
+      <input type="submit" value="Shorten" />
+    </form>
+
+    <p><a id="shortened-link"></a></p>
+
+    <script>
+      const form = document.getElementById("shorten-form");
+      const shortenedLink = document.getElementById("shortened-link");
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const url = form.elements["url"].value;
+
+        fetch("/", {
+          method: "POST",
+          body: url,
+        })
+          .then((resp) => resp.text())
+          .then((shortId) => {
+            const shortUrl = `${window.location.origin}/${shortId}`;
+
+            shortenedLink.href = shortUrl;
+            shortenedLink.innerText = shortUrl;
+          });
+      });
+    </script>
+  </body>
+</html>

@@ -3,11 +3,16 @@ use crate::{errors, id, AppState};
 use axum::{
     extract::{Path, State},
     http::{header, HeaderMap, HeaderValue, StatusCode},
+    response::Html,
 };
 
 use bb8_redis::redis::{cmd, AsyncCommands};
 
 use anyhow::anyhow;
+
+pub async fn index() -> Html<&'static str> {
+    Html(include_str!("index.html"))
+}
 
 pub async fn health(State(app_state): State<AppState>) -> Result<(), errors::AppError> {
     let mut conn = app_state.redis.get().await?;
