@@ -1,4 +1,4 @@
-use crate::{errors, id, AppState};
+use crate::{errors::InternalErrExt, id, AppState};
 
 use axum::{
     extract::{Path, State},
@@ -8,19 +8,20 @@ use axum::{
 
 use bb8_redis::redis::{cmd, AsyncCommands};
 
-use anyhow::anyhow;
-
 pub async fn index() -> Html<&'static str> {
     Html(include_str!("index.html"))
 }
 
-pub async fn health(State(app_state): State<AppState>) -> Result<(), errors::AppError> {
-    let mut conn = app_state.redis.get().await?;
+pub async fn health(State(app_state): State<AppState>) -> Result<(), StatusCode> {
+    let mut conn = app_state.redis.get().await.map_internal_err()?;
 
-    let reply: String = cmd("PING").query_async(&mut *conn).await?;
+    let reply: String = cmd("PING")
+        .query_async(&mut *conn)
+        .await
+        .map_internal_err()?;
 
     if reply != "PONG" {
-        return Err(anyhow!("invalid response").into());
+        return Err(StatusCode::SERVICE_UNAVAILABLE);
     }
 
     Ok(())
@@ -29,14 +30,14 @@ pub async fn health(State(app_state): State<AppState>) -> Result<(), errors::App
 pub async fn get_link(
     Path(id): Path<String>,
     State(app_state): State<AppState>,
-) -> Result<(StatusCode, HeaderMap), errors::AppError> {
-    let mut conn = app_state.redis.get().await?;
+) -> Result<(StatusCode, HeaderMap), StatusCode> {
+    let mut conn = app_state.redis.get().await.map_internal_err()?;
 
-    let link: Option<String> = conn.get(&id).await?;
+    let link: Option<String> = conn.get(&id).await.map_internal_err()?;
 
     if let Some(link) = link {
         let mut headers = HeaderMap::new();
-        let header_value = HeaderValue::from_str(&link)?;
+        let header_value = HeaderValue::from_str(&link).map_internal_err()?;
 
         headers.insert(header::LOCATION, header_value);
 
@@ -49,11 +50,11 @@ pub async fn get_link(
 pub async fn set_link(
     State(app_state): State<AppState>,
     body: String,
-) -> Result<String, errors::AppError> {
-    let mut conn = app_state.redis.get().await?;
+) -> Result<String, StatusCode> {
+    let mut conn = app_state.redis.get().await.map_internal_err()?;
     let link_id = id::generate();
 
-    let _: () = conn.set(&link_id, &body).await?;
+    let _: () = conn.set(&link_id, &body).await.map_internal_err()?;
 
     Ok(link_id)
 }
