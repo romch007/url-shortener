@@ -3,8 +3,8 @@ use rand::Rng;
 const ID_LEN: usize = 7;
 
 pub fn generate() -> String {
-    rand::thread_rng()
-        .sample_iter(&rand::distributions::Alphanumeric)
+    rand::rng()
+        .sample_iter(&rand::distr::Alphanumeric)
         .take(ID_LEN)
         .map(char::from)
         .collect()
