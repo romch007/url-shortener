@@ -1,10 +1,10 @@
-FROM rust:1-alpine AS builder
+FROM rust:1 AS builder
 
-RUN apk add --no-cache musl-dev
+ENV TINI_VERSION=v0.19.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static /tini
+RUN chmod +x /tini
 
 RUN cargo install cargo-build-deps
-
-ENV RUSTFLAGS='-C target-feature=-crt-static'
 
 WORKDIR /app
 
@@ -18,12 +18,7 @@ COPY src ./src
 RUN cargo build --release
 RUN strip target/release/url-shortener
 
-FROM alpine
-
-ARG USER=default
-
-RUN apk add --no-cache tini libgcc
-RUN adduser -D $USER
+FROM gcr.io/distroless/cc-debian12:nonroot
 
 ENV HOST=0.0.0.0
 ENV PORT=8080
@@ -32,10 +27,9 @@ EXPOSE 8080
 
 WORKDIR /app
 
-USER $USER
+COPY --from=builder /app/url-shortener/target/release/url-shortener /app
+COPY --from=builder /tini /tini
 
-COPY --from=builder /app/url-shortener/target/release/url-shortener ./
-
-ENTRYPOINT [ "/sbin/tini", "--" ]
+ENTRYPOINT ["/tini" , "--"]
 
 CMD ["/app/url-shortener"]
